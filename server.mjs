@@ -1,10 +1,30 @@
-import { createServer } from 'node:http';
+import express from 'express';
 
-const server = createServer((req, res) => {
-  res.writeHead(200, { 'Content-Type': 'text/plain' });
-  res.end('Hello World!\n');
-});
+import { createTask } from './routes/tasks/create.mjs'
+import { loadTasks } from './routes/tasks/load.mjs'
 
-server.listen(3000, '127.0.0.1', () => {
-  console.log('Listening on 127.0.0.1:3000');
-});
+const app = express()
+app.use(express.json());
+const port = 3000
+
+app.post('/tasks', async (req, res, next) => {
+    await createTask({
+        title: req.body.title
+    })
+    res.status(201).end();
+})
+
+app.get('/tasks', async (req, res, next) => {
+    const tasks = await loadTasks()
+    console.log(tasks)
+    res.json(tasks);
+})
+
+app.get('/', (req, res, next) => {
+    console.log('Chegou no post')
+    res.send('no get');
+})
+
+app.listen(port, () => {
+  console.log(`Node em execução na porta ${port}`)
+})
